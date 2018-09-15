@@ -1,7 +1,7 @@
 # IFlux
 
 Kernel to run [Flux](https://github.com/influxdata/flux) queries by
-communication with `fluxd` (connected to an InfluxDB instance).
+communicating with `fluxd` (connected to an InfluxDB instance).
 
 ### Run locally
 
