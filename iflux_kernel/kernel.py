@@ -1,9 +1,7 @@
 from ipykernel.kernelbase import Kernel
-from iflux_kernel.pyflux_mock import PyFluxMock
 from IPython.display import display, HTML
 
-from pyflux import Flux
-from render import Render
+from pyflux import Flux, Render
 import json, os
 import pandas as pd
 
@@ -23,7 +21,7 @@ class IFluxKernel(Kernel):
         super().__init__(*args, **kwargs)
         hn = os.environ.get("FLUX_HOST", hostname)
         p = os.environ.get("FLUX_PORT", port)
-        self.client = Flux(host=hn, port=port)
+        self.client = Flux(host=hn, port=p)
 
     def do_execute(self, code, silent, store_history=True, user_expressions=None,
                    allow_stdin=False):
@@ -31,14 +29,18 @@ class IFluxKernel(Kernel):
             resp = self.client.eval_query(code)
 
             for res in resp:
-                df = Render().table(res)
-                stream_content = {
-                    'name': 'stdout',
-                    'data': {'text/html': df.to_html()}
-                }
-                self.send_response(self.iopub_socket, 'display_data', stream_content)
+                if "error" not in res.headers[0] :
+                    df = Render().table(res)
+                    
+                    stream_content = {
+                        'name': 'stdout',
+                        'data': {'text/html': df.to_html()}
+                    }
+                    self.send_response(self.iopub_socket, 'display_data', stream_content)
 
-            display(stream_content)
+                    display(stream_content)
+                else:
+                    self.send_response(self.iopub_socket, 'stream', {'name':'stdout', 'text':res.headers[0]})
 
         return {'status': 'ok',
                 # The base class increments the execution count
