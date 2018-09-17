@@ -14,7 +14,7 @@ $ pip install jupyter
 Install dependencies and kernel:
 
 ```
-$ pip install -r requirements.txt
+$ pip install -e .
 $ export FLUX_HOST="localhost"
 $ export FLUX_PORT=8093
 $ jupyter kernelspec install iflux_kernel
